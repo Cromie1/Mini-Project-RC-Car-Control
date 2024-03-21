@@ -37,7 +37,7 @@ void waitStop(){
 }
 
 void I2C2_IRQHandler(){
-//GPIOC->ODR |=(1<<6);
+
 	//Transmit ready
 	if(I2C2->ISR & I2C_ISR_TXIS){
 		
@@ -57,7 +57,6 @@ void I2C2_IRQHandler(){
 		rdBuffer[rdCounter] = I2C2->RXDR;
 		
 		if(rdCounter < rdAmount -1){
-								GPIOC->ODR ^=(1<<6);
 			rdCounter++;
 			
 		}
@@ -287,6 +286,34 @@ int main(void)
 		HAL_Delay(10);
 		//waitStop();
 		nunchuckDataCollect();
+		
+		if(nunchuckData[5] == 0x02){
+			GPIOC->ODR |=(1<<9);
+		}
+		else{
+			GPIOC->ODR &=~(1<<9);
+		}
+		
+		if(nunchuckData[5] == 0x01){
+			GPIOC->ODR |=(1<<8);
+		}
+		else{
+			GPIOC->ODR &=~(1<<8);
+		}
+		
+		if(nunchuckData[0] < 0x80){
+			GPIOC->ODR |=(1<<7);
+		}
+		else{
+			GPIOC->ODR &=~(1<<7);
+		}
+		
+		if(nunchuckData[0] > 0x80){
+			GPIOC->ODR |=(1<<6);
+		}
+		else{
+			GPIOC->ODR &=~(1<<6);
+		}
   }
 }
 

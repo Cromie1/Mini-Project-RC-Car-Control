@@ -16,11 +16,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 volatile uint8_t txBuffer[6];
-volatile int txCounter;
+volatile int txCounter = 0;
 volatile int txAmount = 0;
 volatile uint8_t rdBuffer[6];
 volatile uint8_t nunchuckData[6];
-volatile int rdCounter;
+volatile int rdCounter = 0;
 volatile int rdAmount = 0;
 
 /**
@@ -30,6 +30,7 @@ void waitStop(){
 	  while (1)
   {
 		if((I2C2->ISR & (1<<5))){
+			I2C2->ICR |=(1<<5);
 			break;
 		}
   }
@@ -52,13 +53,16 @@ void I2C2_IRQHandler(){
 	
 	//read ready
 	if(I2C2->ISR & I2C_ISR_RXNE){
-		
-		I2C2->RXDR = rdBuffer[rdCounter];
+
+		rdBuffer[rdCounter] = I2C2->RXDR;
 		
 		if(rdCounter < rdAmount -1){
+								GPIOC->ODR ^=(1<<6);
 			rdCounter++;
+			
 		}
 		else{
+
 			rdCounter = 0;
 		}
 	}
@@ -109,14 +113,42 @@ I2C2->CR2 |=(1<<13);
 }
 
 void nunchuckDataCollect(){
+	//write 0x00 to collect data
+		//Set slave Address
+	waitStop();
+	I2C2->CR2 &= ~(0xFF << 1);  // Clear bits 23-16
+	I2C2->CR2 |= (0x52 << 1); 
+	
+
+	//set 1 byte
+	I2C2->CR2 &=~ (0xFF<<16); 
+	I2C2->CR2 |= (1<<16); 
+	
+	//Set to write
+	I2C2->CR2 &=~(1<<10);
+	
+	//set 0x0 to then read data
+	txBuffer[0] = 0x0;
+	//set one byte
+	txAmount = 1;
+	
+			//START
+	I2C2->CR2 |=(1<<13);
+	
+	
 	//read data and append to the nunchuck data
 	
-	//Set slave Address
-	I2C2->CR2 = (0x52<<1); 
-	//set 6 byte
-	I2C2->CR2 = (6<<16);
+   //wait for transmission before reading
+	waitStop();
+
+	//set 6 bytes
+	I2C2->CR2 &= ~(0xFF << 16);  // Clear bits 23-16
+	I2C2->CR2 |= (0x6 << 16);       // Set 6 bytes transfer
+	
 	//Set to read
 	I2C2->CR2 |=(1<<10);
+	
+	rdAmount = 6;
 	
 		//START
 	I2C2->CR2 |=(1<<13);
@@ -252,7 +284,8 @@ int main(void)
 	nunchuckInitialize();
   while (1)
   {
-		HAL_Delay(1000);
+		HAL_Delay(10);
+		//waitStop();
 		nunchuckDataCollect();
   }
 }

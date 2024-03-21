@@ -1,0 +1,25 @@
+--cpu Cortex-M0
+"carcontrol\startup_stm32f072xb.o"
+"carcontrol\main.o"
+"carcontrol\stm32f0xx_it.o"
+"carcontrol\stm32f0xx_hal_msp.o"
+"carcontrol\stm32f0xx_hal_tim.o"
+"carcontrol\stm32f0xx_hal_tim_ex.o"
+"carcontrol\stm32f0xx_hal_rcc.o"
+"carcontrol\stm32f0xx_hal_rcc_ex.o"
+"carcontrol\stm32f0xx_hal.o"
+"carcontrol\stm32f0xx_hal_i2c.o"
+"carcontrol\stm32f0xx_hal_i2c_ex.o"
+"carcontrol\stm32f0xx_hal_gpio.o"
+"carcontrol\stm32f0xx_hal_dma.o"
+"carcontrol\stm32f0xx_hal_cortex.o"
+"carcontrol\stm32f0xx_hal_pwr.o"
+"carcontrol\stm32f0xx_hal_pwr_ex.o"
+"carcontrol\stm32f0xx_hal_flash.o"
+"carcontrol\stm32f0xx_hal_flash_ex.o"
+"carcontrol\stm32f0xx_hal_exti.o"
+"carcontrol\system_stm32f0xx.o"
+--strict --scatter "CarControl\CarControl.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "CarControl.map" -o CarControl\CarControl.axf

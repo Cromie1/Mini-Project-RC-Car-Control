@@ -36,6 +36,9 @@ void waitStop(){
   }
 }
 
+/**
+	*@brief handler for I2C event interrupt.
+**/
 void I2C2_IRQHandler(){
 
 	//Transmit ready
@@ -74,6 +77,9 @@ void I2C2_IRQHandler(){
 		}
 	
 }
+/**
+	*@brief Initialize Nunchuck to not Encrypt data.
+**/
 void nunchuckInitialize(){
 //Initialize nunchuck to not use encription
 //set slave address
@@ -110,7 +116,9 @@ I2C2->CR2 |=(1<<13);
 
 	return ;
 }
-
+/**
+	*@brief Collects input from the nunchuck.
+**/
 void nunchuckDataCollect(){
 	//write 0x00 to collect data
 		//Set slave Address
@@ -160,6 +168,33 @@ void nunchuckDataCollect(){
 	nunchuckData[5] = rdBuffer[5];
 	
 	return ;
+}
+
+void steerCar(char input){
+	//address 0x28
+	//write 0x00 then value
+	waitStop();
+	//GPIOC->ODR ^=(1<<9);
+	I2C2->CR2 &= ~(0xFF << 1);  // Clear bits 23-16
+	I2C2->CR2 |= (0x28 << 1); 
+	
+
+	//set 2 byte
+	I2C2->CR2 &=~ (0xFF<<16); 
+	I2C2->CR2 |= (0x2<<16); 
+	
+	//Set to write
+	I2C2->CR2 &=~(1<<10);
+	
+	//set 0x0 to then read data
+	txBuffer[0] = 0x00;
+	txBuffer[1] = input;
+	//set one byte
+	txAmount = 2;
+			//START
+	I2C2->CR2 |=(1<<13);
+	
+	
 }
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -284,9 +319,9 @@ int main(void)
   while (1)
   {
 		HAL_Delay(10);
-		//waitStop();
+
 		nunchuckDataCollect();
-		
+		//waitStop();
 		if(nunchuckData[5] == 0x02){
 			GPIOC->ODR |=(1<<9);
 		}
@@ -303,16 +338,22 @@ int main(void)
 		
 		if(nunchuckData[0] < 0x80){
 			GPIOC->ODR |=(1<<7);
+			steerCar(0x51);
 		}
 		else{
-			GPIOC->ODR &=~(1<<7);
+			
+			//steerCar(0x63);
 		}
 		
 		if(nunchuckData[0] > 0x80){
 			GPIOC->ODR |=(1<<6);
+			
+			steerCar(0x76);
 		}
 		else{
 			GPIOC->ODR &=~(1<<6);
+			GPIOC->ODR &=~(1<<7);
+			steerCar(0x63);
 		}
   }
 }

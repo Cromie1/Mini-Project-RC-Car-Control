@@ -15,59 +15,119 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-volatile uint8_t txBuffer;
-volatile uint8_t rdBuffer;
-volatile uint8_t nunChuckData[6];
+volatile uint8_t txBuffer[6];
+volatile int txCounter;
+volatile int txAmount = 0;
+volatile uint8_t rdBuffer[6];
+volatile uint8_t nunchuckData[6];
+volatile int rdCounter;
+volatile int rdAmount = 0;
+
+/**
+	*@brief waits for Stop.
+**/
+void waitStop(){
+	  while (1)
+  {
+		if((I2C2->ISR & (1<<5))){
+			break;
+		}
+  }
+}
 
 void I2C2_IRQHandler(){
-	
+//GPIOC->ODR |=(1<<6);
 	//Transmit ready
 	if(I2C2->ISR & I2C_ISR_TXIS){
-			I2C2->TXDR = txBuffer;
+		
+		I2C2->TXDR = txBuffer[txCounter];
+		
+		if(txCounter < txAmount - 1){
+			txCounter++;
 		}
+		else{
+			txCounter = 0;
+		}
+	}
+	
 	//read ready
 	if(I2C2->ISR & I2C_ISR_RXNE){
-			I2C2->RXDR = rdBuffer;
+		
+		I2C2->RXDR = rdBuffer[rdCounter];
+		
+		if(rdCounter < rdAmount -1){
+			rdCounter++;
 		}
+		else{
+			rdCounter = 0;
+		}
+	}
 	
 	//transfer complete
 	if((I2C2->ISR & I2C_ISR_TC)){
+		
 	//stop 
 	I2C2->CR2 |=(1<<14);
 		}
 	
 }
 void nunchuckInitialize(){
-	//Initialize nunchuck to not use encription
-	
-	//Send 0xF0, 0x55, stop
-	
-	//Set slave Address
-	I2C2->CR2 = (0x52<<1); 
-	//set 2 byte
-	I2C2->CR2 = (2<<16);
-	//Set to transmit
-	I2C2->CR2 &=~(1<<10);
+//Initialize nunchuck to not use encription
+//set slave address
+I2C2->CR2 |= (0x52<<1); 
+//set n bytes
+I2C2->CR2 |= (2<<16); 
+//RD WRN
+I2C2->CR2 &=~(1<<10); 
+//START
+I2C2->CR2 |=(1<<13); 
 
-	txBuffer = 0xF0;
+
+	//Send 0xF0, 0x55, stop
+
 	
-	//START
+	txBuffer[0] = 0xF0;
+	txBuffer[1] = 0x55;
+	txAmount = 2;
+			//START
 	I2C2->CR2 |=(1<<13); 
+
+	waitStop();
 	
-	txBuffer = 0x55;
-	
-	//send 0xFB, 0x00, stop
-	txBuffer = 0xFB;
-	
-	//START
+
+		//START
 	I2C2->CR2 |=(1<<13);
+	//send 0xFB, 0x00, stop
+	txBuffer[0] = 0xFB;
+	txBuffer[1] = 0x00;
+	txAmount = 2;
 	
-	txBuffer = 0x00;
+
+
+
 	return ;
 }
 
-void nunchuckData(){
+void nunchuckDataCollect(){
 	//read data and append to the nunchuck data
+	
+	//Set slave Address
+	I2C2->CR2 = (0x52<<1); 
+	//set 6 byte
+	I2C2->CR2 = (6<<16);
+	//Set to read
+	I2C2->CR2 |=(1<<10);
+	
+		//START
+	I2C2->CR2 |=(1<<13);
+	
+	nunchuckData[0] = rdBuffer[0];
+	nunchuckData[1] = rdBuffer[1];
+	nunchuckData[2] = rdBuffer[2];
+	nunchuckData[3] = rdBuffer[3];
+	nunchuckData[4] = rdBuffer[4];
+	nunchuckData[5] = rdBuffer[5];
+	
 	return ;
 }
 /* Private function prototypes -----------------------------------------------*/
@@ -96,6 +156,7 @@ int main(void)
 	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
 	RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
 	RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
+	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 	
 	//setup LED lights for debugging
 
@@ -177,6 +238,11 @@ int main(void)
 
 	//i2c enable
 	I2C2->CR1 |=(1<<0);
+	
+	//enable interrupts
+	I2C2->CR1 |=(1<<1);
+	I2C2->CR1 |=(1<<6);
+	I2C2->CR1 |=(1<<2);
 
 	//enable interrupts in the NVIC
 	NVIC_EnableIRQ(I2C2_IRQn);
@@ -186,7 +252,8 @@ int main(void)
 	nunchuckInitialize();
   while (1)
   {
-		
+		HAL_Delay(1000);
+		nunchuckDataCollect();
   }
 }
 

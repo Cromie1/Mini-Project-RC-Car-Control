@@ -5,3 +5,6 @@ https://domoticx.com/pinout-wii-nunchuk/
 //Link to Digital Potentiometers Documentation
 
 https://cdn-learn.adafruit.com/downloads/pdf/ds3502-i2c-potentiometer.pdf
+
+// documentation for wii nunchuck 
+https://bootlin.com/labs/doc/nunchuk.pdf

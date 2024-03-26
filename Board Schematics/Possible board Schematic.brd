@@ -176,6 +176,10 @@
 <wire x1="33.96" y1="0" x2="33.96" y2="16.5" width="0" layer="20"/>
 <wire x1="33.96" y1="16.5" x2="0" y2="16.5" width="0" layer="20"/>
 <wire x1="0" y1="16.5" x2="0" y2="0" width="0" layer="20"/>
+<dimension x1="0" y1="16.5" x2="33.02" y2="17.78" x3="16.51" y3="16.51" textsize="1.778" layer="1" dtype="horizontal"/>
+<dimension x1="0" y1="16.5" x2="-1.27" y2="0" x3="0" y3="8.25" textsize="1.778" layer="1" dtype="vertical"/>
+<dimension x1="34.29" y1="16.51" x2="34.29" y2="0" x3="35.56" y3="8.255" textsize="1.778" layer="1" dtype="vertical" unit="inch"/>
+<dimension x1="0" y1="17.78" x2="34.29" y2="17.78" x3="17.145" y3="17.78" textsize="1.778" layer="1" dtype="vertical" unit="inch"/>
 </plain>
 <libraries>
 <library name="microbuilder">
@@ -594,8 +598,8 @@ design rules under a new name.</description>
 <element name="U$6" library="microbuilder" package="MOUNTINGHOLE_2.5_PLATED" value="MOUNTINGHOLE2.5" x="30.48" y="3.81" smashed="yes">
 <attribute name="BOM" value="EXCLUDE" x="50.8" y="-5.08" size="1.778" layer="27" display="off"/>
 </element>
-<element name="U$7" library="microbuilder" package="MOUNTINGHOLE_2.5_PLATED" value="MOUNTINGHOLE2.5" x="2.54" y="12.7" smashed="yes">
-<attribute name="BOM" value="EXCLUDE" x="27.94" y="3.81" size="1.778" layer="27" display="off"/>
+<element name="U$7" library="microbuilder" package="MOUNTINGHOLE_2.5_PLATED" value="MOUNTINGHOLE2.5" x="3.81" y="11.43" smashed="yes">
+<attribute name="BOM" value="EXCLUDE" x="29.21" y="2.54" size="1.778" layer="27" display="off"/>
 </element>
 </elements>
 <signals>

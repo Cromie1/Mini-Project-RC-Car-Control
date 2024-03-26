@@ -196,6 +196,34 @@ void steerCar(char input){
 	
 	
 }
+
+
+void driveCar(char input){
+	//address 0x29
+	//write 0x00 then value
+	waitStop();
+	//GPIOC->ODR ^=(1<<9);
+	I2C2->CR2 &= ~(0xFF << 1);  // Clear bits 23-16
+	I2C2->CR2 |= (0x29 << 1); 
+	
+
+	//set 2 byte
+	I2C2->CR2 &=~ (0xFF<<16); 
+	I2C2->CR2 |= (0x2<<16); 
+	
+	//Set to write
+	I2C2->CR2 &=~(1<<10);
+	
+	//set 0x0 to then read data
+	txBuffer[0] = 0x00;
+	txBuffer[1] = input;
+	//set one byte
+	txAmount = 2;
+			//START
+	I2C2->CR2 |=(1<<13);
+	
+	
+}
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
@@ -324,32 +352,32 @@ int main(void)
 		//waitStop();
 		if(nunchuckData[5] == 0x02){
 			GPIOC->ODR |=(1<<9);
+			driveCar(0x3c);
+		}
+		else	if(nunchuckData[5] == 0x01){
+			GPIOC->ODR |=(1<<8);
+			driveCar(0x41);
 		}
 		else{
 			GPIOC->ODR &=~(1<<9);
-		}
-		
-		if(nunchuckData[5] == 0x01){
-			GPIOC->ODR |=(1<<8);
-		}
-		else{
 			GPIOC->ODR &=~(1<<8);
+			driveCar(0x3f);
 		}
 		
-		if(nunchuckData[0] < 0x80){
+
+
+		
+		if(nunchuckData[0] > 0x80){
 			GPIOC->ODR |=(1<<7);
 			steerCar(0x33);
 		}
-		else{
-			
-			//steerCar(0x63);
-		}
-		
-		if(nunchuckData[0] > 0x80){
+		else if(nunchuckData[0] < 0x80){
 			GPIOC->ODR |=(1<<6);
 			
 			steerCar(0x4c);
 		}
+		
+
 		else{
 			GPIOC->ODR &=~(1<<6);
 			GPIOC->ODR &=~(1<<7);

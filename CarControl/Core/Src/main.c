@@ -338,7 +338,7 @@ int main(void)
 		
 		if(nunchuckData[0] < 0x80){
 			GPIOC->ODR |=(1<<7);
-			steerCar(0x51);
+			steerCar(0x33);
 		}
 		else{
 			
@@ -348,12 +348,12 @@ int main(void)
 		if(nunchuckData[0] > 0x80){
 			GPIOC->ODR |=(1<<6);
 			
-			steerCar(0x76);
+			steerCar(0x4c);
 		}
 		else{
 			GPIOC->ODR &=~(1<<6);
 			GPIOC->ODR &=~(1<<7);
-			steerCar(0x63);
+			steerCar(0x3f);
 		}
   }
 }

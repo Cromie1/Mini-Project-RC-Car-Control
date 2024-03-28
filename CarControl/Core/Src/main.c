@@ -23,6 +23,8 @@ volatile uint8_t nunchuckData[6];
 volatile int rdCounter = 0;
 volatile int rdAmount = 0;
 
+int stepCount = 31;
+
 /**
 	*@brief waits for Stop.
 **/
@@ -176,7 +178,7 @@ void nunchuckDataCollect(){
   * @brief  This method sends a signal to the drive potentiometer to drive the car.
 	* @input this is the input Char value to change the potentiometer to steer car
   */
-void steerCar(char input){
+void steerCar(int input){
 	//address 0x28
 	//write 0x00 then value
 	waitStop();
@@ -258,23 +260,28 @@ void determineDrive(){
 void determineDirection(){
 	//check if left or right
  //future turn values 0x36 0x39 0x3c
-			if(nunchuckData[0] > 0x80){
-			GPIOC->ODR |=(1<<7);
-			steerCar(0x33);
-		}
+	//		if(nunchuckData[0] > 0x80){
+		//	GPIOC->ODR |=(1<<7);
+		//	steerCar(0x33);
+		//}
 				//future turn values 0x42 0x45 0x48
-		else if(nunchuckData[0] < 0x80){
-			GPIOC->ODR |=(1<<6);
+		//else if(nunchuckData[0] < 0x80){
+		//	GPIOC->ODR |=(1<<6);
 			
-			steerCar(0x4b);
-		}
+		//	steerCar(0x4b);
+		//}
 		
 
-		else{
-			GPIOC->ODR &=~(1<<6);
-			GPIOC->ODR &=~(1<<7);
-			steerCar(0x3f);
-		}
+		//else{
+			//GPIOC->ODR &=~(1<<6);
+			//GPIOC->ODR &=~(1<<7);
+			//steerCar(0x3f);
+		//}
+	
+	//use formula
+	int temp =  stepCount * nunchuckData[0] / 256;
+	temp = stepCount - temp;
+	steerCar(50 + temp);
 }
 
 /* Private function prototypes -----------------------------------------------*/

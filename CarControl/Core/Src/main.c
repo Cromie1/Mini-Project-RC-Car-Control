@@ -170,6 +170,12 @@ void nunchuckDataCollect(){
 	return ;
 }
 
+
+
+/**
+  * @brief  This method sends a signal to the drive potentiometer to drive the car.
+	* @input this is the input Char value to change the potentiometer to steer car
+  */
 void steerCar(char input){
 	//address 0x28
 	//write 0x00 then value
@@ -197,7 +203,10 @@ void steerCar(char input){
 	
 }
 
-
+/**
+  * @brief  This method sends a signal to the drive potentiometer to drive the car.
+	* @input this is the input Char value to change the potentiometer
+  */
 void driveCar(char input){
 	//address 0x29
 	//write 0x00 then value
@@ -224,6 +233,50 @@ void driveCar(char input){
 	
 	
 }
+
+/**
+  * @brief  This method determines the direction to drive the car.
+  */
+void determineDrive(){
+		if(nunchuckData[5] == 0x02){
+			GPIOC->ODR |=(1<<9);
+			driveCar(0x3c);
+		}
+		else	if(nunchuckData[5] == 0x01){
+			GPIOC->ODR |=(1<<8);
+			driveCar(0x41);
+		}
+		else{
+			GPIOC->ODR &=~(1<<9);
+			GPIOC->ODR &=~(1<<8);
+			driveCar(0x3f);
+		}
+}
+/**
+  * @brief  This method determines the direction the car should turn it's wheels.
+  */
+void determineDirection(){
+	//check if left or right
+ //future turn values 0x36 0x39 0x3c
+			if(nunchuckData[0] > 0x80){
+			GPIOC->ODR |=(1<<7);
+			steerCar(0x33);
+		}
+				//future turn values 0x42 0x45 0x48
+		else if(nunchuckData[0] < 0x80){
+			GPIOC->ODR |=(1<<6);
+			
+			steerCar(0x4b);
+		}
+		
+
+		else{
+			GPIOC->ODR &=~(1<<6);
+			GPIOC->ODR &=~(1<<7);
+			steerCar(0x3f);
+		}
+}
+
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
@@ -349,40 +402,8 @@ int main(void)
 		HAL_Delay(10);
 
 		nunchuckDataCollect();
-		//waitStop();
-		if(nunchuckData[5] == 0x02){
-			GPIOC->ODR |=(1<<9);
-			driveCar(0x3c);
-		}
-		else	if(nunchuckData[5] == 0x01){
-			GPIOC->ODR |=(1<<8);
-			driveCar(0x41);
-		}
-		else{
-			GPIOC->ODR &=~(1<<9);
-			GPIOC->ODR &=~(1<<8);
-			driveCar(0x3f);
-		}
-		
-
-
-		
-		if(nunchuckData[0] > 0x80){
-			GPIOC->ODR |=(1<<7);
-			steerCar(0x33);
-		}
-		else if(nunchuckData[0] < 0x80){
-			GPIOC->ODR |=(1<<6);
-			
-			steerCar(0x4c);
-		}
-		
-
-		else{
-			GPIOC->ODR &=~(1<<6);
-			GPIOC->ODR &=~(1<<7);
-			steerCar(0x3f);
-		}
+		determineDrive();
+		determineDirection();
   }
 }
 

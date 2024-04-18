@@ -15,15 +15,20 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+
+//I2C communication values
 volatile uint8_t txBuffer[6];
 volatile int txCounter = 0;
 volatile int txAmount = 0;
 volatile uint8_t rdBuffer[6];
-volatile uint8_t nunchuckData[6];
 volatile int rdCounter = 0;
 volatile int rdAmount = 0;
 
-int stepCount = 31;
+// transmitted nunchuck Data
+volatile uint8_t nunchuckData[6];
+
+// step count for number of turning values on transmitter
+int stepCount = 25;
 
 /**
 	*@brief waits for Stop.
@@ -77,8 +82,8 @@ void I2C2_IRQHandler(){
 	//stop 
 	I2C2->CR2 |=(1<<14);
 		}
-	
 }
+
 /**
 	*@brief Initialize Nunchuck to not Encrypt data.
 **/
@@ -112,12 +117,9 @@ I2C2->CR2 |=(1<<13);
 	txBuffer[0] = 0xFB;
 	txBuffer[1] = 0x00;
 	txAmount = 2;
-	
-
-
-
 	return ;
 }
+
 /**
 	*@brief Collects input from the nunchuck.
 **/
@@ -143,7 +145,6 @@ void nunchuckDataCollect(){
 	
 			//START
 	I2C2->CR2 |=(1<<13);
-	
 	
 	//read data and append to the nunchuck data
 	
@@ -201,8 +202,6 @@ void steerCar(int input){
 	txAmount = 2;
 			//START
 	I2C2->CR2 |=(1<<13);
-	
-	
 }
 
 /**
@@ -232,8 +231,6 @@ void driveCar(char input){
 	txAmount = 2;
 			//START
 	I2C2->CR2 |=(1<<13);
-	
-	
 }
 
 /**
@@ -257,43 +254,22 @@ void determineDrive(){
 /**
   * @brief  This method determines the direction the car should turn it's wheels.
   */
-void determineDirection(){
-	//check if left or right
- //future turn values 0x36 0x39 0x3c
-	//		if(nunchuckData[0] > 0x80){
-		//	GPIOC->ODR |=(1<<7);
-		//	steerCar(0x33);
-		//}
-				//future turn values 0x42 0x45 0x48
-		//else if(nunchuckData[0] < 0x80){
-		//	GPIOC->ODR |=(1<<6);
-			
-		//	steerCar(0x4b);
-		//}
-		
-
-		//else{
-			//GPIOC->ODR &=~(1<<6);
-			//GPIOC->ODR &=~(1<<7);
-			//steerCar(0x3f);
-		//}
-	
+void determineDirection(){	
 	//use formula
+	//use stepcount to determine the value to be written to potentiometer
+	
+	//clamps to stepcount
 	int temp =  stepCount * nunchuckData[0] / 256;
+	
+	//inverts to choose steer direction
 	temp = stepCount - temp;
-	steerCar(50 + temp);
+	
+	//offeset zero value
+	steerCar(temp+50);
 }
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
@@ -404,6 +380,8 @@ int main(void)
 	
 	//initialize the nunchuck
 	nunchuckInitialize();
+
+//program loopo
   while (1)
   {
 		HAL_Delay(10);
@@ -411,6 +389,7 @@ int main(void)
 		nunchuckDataCollect();
 		determineDrive();
 		determineDirection();
+		
   }
 }
 

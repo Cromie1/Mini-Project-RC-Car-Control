@@ -16,5 +16,7 @@ After connecting all the neccessary wires the user must then plug in the transmi
 
 #Schematics
 ![alt text](PCB_Design.png)
-
+![alt text](PCB_Soldered.png)
+![alt text](PCB_ZenerDiodes_Design.png)
+![alt text](PCB_ZenerDiodes_Soldered.png)
 #flowcharts

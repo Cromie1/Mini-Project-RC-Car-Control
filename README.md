@@ -1,7 +1,7 @@
 # Mini-Project-RC-Car-Control
 Names: 
 Alex Cromar,
-,Kyla Kunz
+Kyla Kunz,
 Mike Mercer
 
 # E-Maxx Mirage

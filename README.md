@@ -29,3 +29,5 @@ This was done to decrease the range so that we could input finer granularity int
 ![alt text](PCB_ZenerDiodes_Soldered.png "PCB Zener Soldered")
 This is the completed board for the second design.
 # Flowcharts
+Here is the flow of data over the I2C line
+![alt text](flow_of_data.png "Flow of data")
